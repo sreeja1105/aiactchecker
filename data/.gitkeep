@@ -1,0 +1,2 @@
+# ChromaDB persistent storage.
+# Run: python scripts/ingest_docs.py
