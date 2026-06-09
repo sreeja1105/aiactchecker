@@ -16,11 +16,7 @@ from src.obligations import get_obligations
 
 EXAMPLES = [
     "An AI tool that screens job applicants by scoring CVs and ranking candidates for HR teams",
-    "A customer service chatbot on an e-commerce website that handles refund requests and product questions",
-    "An AI-powered email spam filter for a personal mailbox",
-    "A government-run AI system that assigns social credit scores to citizens based on their public behaviour",
 ]
-
 SEPARATOR = "-" * 78
 
 
