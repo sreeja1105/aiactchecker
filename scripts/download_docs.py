@@ -1,5 +1,5 @@
 """
-Download EU AI Act and related compliance documents into docs/.
+Download EU AI Act, GDPR, and NIST AI RMF documents into docs/.
 
 Run from project root:
     python scripts/download_docs.py
@@ -16,6 +16,8 @@ DOCS_DIR.mkdir(exist_ok=True)
 
 DOCUMENTS = {
     "eu_ai_act.pdf": "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689",
+    "gdpr.pdf": "https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=CELEX:32016R0679",
+    "nist_ai_rmf.pdf": "https://nvlpubs.nist.gov/nistpubs/ai/NIST.AI.100-1.pdf",
 }
 
 HEADERS = {
