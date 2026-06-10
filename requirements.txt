@@ -22,3 +22,4 @@ requests>=2.32.0
 fastapi>=0.115.0
 uvicorn>=0.30.0
 streamlit>=1.40.0
+langgraph>=0.0.40
