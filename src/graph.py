@@ -3,16 +3,17 @@ LangGraph orchestration for AIActChecker.
 
 This is the integration layer that routes user queries to the right mode.
 
-Current status:
-  - Mode 1 (Classify): WIRED, runs the real classify_ai_system function
-  - Mode 2 (Obligations): STUB, returns placeholder
-  - Mode 3 (Gap Analysis): STUB, returns placeholder
-  - Mode 4 (Cross Map): STUB, returns placeholder
+Current status: ALL 4 MODES WIRED.
+  - Mode 1 (Classify):     classify_ai_system()
+  - Mode 2 (Obligations):  get_obligations()
+  - Mode 3 (Gap Analysis): analyze_gaps()
+  - Mode 4 (Cross Map):    cross_map()
 
 Routing:
   Keyword based intent detection. Simple, deterministic, no extra LLM call.
-  When all 4 modes are wired and we want more flexible routing, we can swap
-  in an LLM based intent classifier without changing the graph structure.
+  Mode specific inputs (system_description, current_state, topic, risk_category)
+  can be passed explicitly in initial state when the caller already knows them.
+  Useful for Mode 3 which needs both a system description and a current state.
 """
 
 from typing import TypedDict, Optional, Literal
@@ -20,6 +21,9 @@ from typing import TypedDict, Optional, Literal
 from langgraph.graph import StateGraph, END
 
 from src.classify import classify_ai_system
+from src.obligations import get_obligations
+from src.gap_analysis import analyze_gaps
+from src.cross_map import cross_map
 
 
 # ----- State model -----
@@ -28,6 +32,8 @@ class AppState(TypedDict, total=False):
     """State that flows through the graph."""
     user_input: str
     mode: Optional[str]
+
+    # Mode specific inputs (can be supplied by caller or filled in by the router)
     system_description: Optional[str]
     current_state: Optional[str]
     topic: Optional[str]
@@ -48,9 +54,9 @@ def router_node(state: AppState) -> AppState:
     """
     Decide which mode to run based on keywords in the user input.
 
-    This is intentionally simple. Real keyword overlap and ambiguity will be
-    handled later by an LLM intent classifier or by exposing modes as
-    explicit API endpoints in the FastAPI layer.
+    If the caller has already supplied mode specific inputs (system_description,
+    topic, current_state) in the initial state, those are preserved. Otherwise
+    the router fills them from user_input as a sensible default.
     """
     text = state["user_input"].lower()
 
@@ -63,56 +69,62 @@ def router_node(state: AppState) -> AppState:
     elif any(kw in text for kw in ["compare", "map across", "cross framework", "gdpr", "nist"]):
         mode = "CROSS_MAP"
     else:
-        # Default: assume the user is describing a system and wants classification
         mode = "CLASSIFY"
 
-    # For CLASSIFY / OBLIGATIONS / GAP_ANALYSIS the input is a system description.
-    # For CROSS_MAP the input is a topic.
+    new_state: AppState = {**state, "mode": mode}
+
+    # Fill in mode specific inputs from user_input only if the caller did not supply them.
     if mode == "CROSS_MAP":
-        return {**state, "mode": mode, "topic": state["user_input"]}
+        if not new_state.get("topic"):
+            new_state["topic"] = state["user_input"]
     else:
-        return {**state, "mode": mode, "system_description": state["user_input"]}
+        if not new_state.get("system_description"):
+            new_state["system_description"] = state["user_input"]
+
+    return new_state
 
 
-# ----- Mode nodes -----
+# ----- Mode nodes (all wired) -----
 
 def classify_node(state: AppState) -> AppState:
-    """Mode 1: Risk classification. WIRED to real function."""
+    """Mode 1: Risk classification."""
     result = classify_ai_system(state["system_description"])
     return {**state, "classification": result}
 
 
 def obligations_node(state: AppState) -> AppState:
-    """Mode 2: Obligations checklist. STUB. Will be wired in next iteration."""
-    return {
-        **state,
-        "obligations": {
-            "status": "stub",
-            "note": "Mode 2 not yet wired to the graph. Call get_obligations() directly for now.",
-        },
-    }
+    """Mode 2: Obligations checklist."""
+    result = get_obligations(
+        system_description=state["system_description"],
+        risk_category=state.get("risk_category"),
+    )
+    return {**state, "obligations": result}
 
 
 def gap_analysis_node(state: AppState) -> AppState:
-    """Mode 3: Gap analysis. STUB. Will be wired in next iteration."""
-    return {
-        **state,
-        "gap_analysis": {
-            "status": "stub",
-            "note": "Mode 3 not yet wired to the graph. Call analyze_gaps() directly for now.",
-        },
-    }
+    """Mode 3: Gap analysis. Requires both system_description and current_state."""
+    current_state = state.get("current_state")
+    if not current_state:
+        return {
+            **state,
+            "gap_analysis": {
+                "error": "Mode 3 requires a current_state input describing the user's "
+                         "existing controls. Pass it explicitly in the initial state."
+            },
+        }
+
+    result = analyze_gaps(
+        system_description=state["system_description"],
+        current_state=current_state,
+        risk_category=state.get("risk_category"),
+    )
+    return {**state, "gap_analysis": result}
 
 
 def cross_map_node(state: AppState) -> AppState:
-    """Mode 4: Cross standard map. STUB. Will be wired in next iteration."""
-    return {
-        **state,
-        "cross_map": {
-            "status": "stub",
-            "note": "Mode 4 not yet wired to the graph. Call cross_map() directly for now.",
-        },
-    }
+    """Mode 4: Cross standard map."""
+    result = cross_map(state["topic"])
+    return {**state, "cross_map": result}
 
 
 # ----- Conditional edge: route to mode -----
@@ -163,8 +175,38 @@ def build_graph():
 
 # ----- Public entry point -----
 
-def run(user_input: str) -> dict:
-    """Run a query end to end through the graph."""
+def run(
+    user_input: str,
+    *,
+    system_description: Optional[str] = None,
+    current_state: Optional[str] = None,
+    topic: Optional[str] = None,
+    risk_category: Optional[str] = None,
+) -> dict:
+    """
+    Run a query end to end through the graph.
+
+    Args:
+        user_input: The user's natural language query. The router uses this to
+                    pick the mode.
+        system_description: Optional. For Modes 1, 2, 3. If not provided, the
+                            user_input is used.
+        current_state: Required for Mode 3 (gap analysis). The user's current
+                       compliance controls.
+        topic: Optional. For Mode 4. If not provided, the user_input is used.
+        risk_category: Optional. Pre classified risk tier (PROHIBITED, HIGH,
+                       LIMITED, MINIMAL). Saves an LLM call in Modes 2 and 3.
+    """
     app = build_graph()
+
     initial_state: AppState = {"user_input": user_input}
+    if system_description:
+        initial_state["system_description"] = system_description
+    if current_state:
+        initial_state["current_state"] = current_state
+    if topic:
+        initial_state["topic"] = topic
+    if risk_category:
+        initial_state["risk_category"] = risk_category
+
     return app.invoke(initial_state)
