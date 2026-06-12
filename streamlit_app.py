@@ -62,9 +62,48 @@ st.markdown("""
 }
 
 .block-container { padding-top: 1.5rem; padding-bottom: 3rem; max-width: 1200px; }
-.stTabs [data-baseweb="tab-list"] { gap: 6px; border-bottom: 1px solid var(--ai-border); }
-.stTabs [data-baseweb="tab"] { padding: 8px 16px; font-size: 14px; font-weight: 500; }
+/* Tabs styled as clickable buttons */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 8px;
+    border-bottom: none;
+    background: transparent;
+    margin-bottom: 16px;
+}
 
+.stTabs [data-baseweb="tab"] {
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--ai-bg-secondary);
+    border: 1px solid var(--ai-border);
+    border-radius: 6px;
+    color: var(--ai-text-secondary);
+    transition: all 0.15s ease;
+    height: auto;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background: var(--ai-bg-tertiary);
+    color: var(--ai-text-primary);
+    border-color: #CBD5E1;
+}
+
+.stTabs [data-baseweb="tab"][aria-selected="true"] {
+    background: var(--ai-text-primary);
+    color: white;
+    border-color: var(--ai-text-primary);
+}
+
+.stTabs [data-baseweb="tab"][aria-selected="true"]:hover {
+    background: #1E293B;
+    color: white;
+}
+
+/* Hide the default red underline indicator */
+.stTabs [data-baseweb="tab-highlight"],
+.stTabs [data-baseweb="tab-border"] {
+    display: none;
+}
 h1 { font-weight: 600; letter-spacing: -0.5px; color: var(--ai-text-primary); }
 h2 { font-weight: 600; color: var(--ai-text-primary); }
 h3 { font-weight: 500; color: var(--ai-text-primary); margin-top: 0.5rem; }
