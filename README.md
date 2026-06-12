@@ -120,8 +120,10 @@ flowchart LR
 | **Language** | Python 3.13 | Standard for the LLM stack |
 | **Document ingestion** | PyMuPDF | Robust PDF parsing |
 | **SDK** | `google-genai` (current SDK, not the deprecated `google-generativeai`) | Future proof |
-| **Planned** | LangGraph (orchestration), FastAPI (API layer), Streamlit (UI) | Coming in the next phase |
-
+| **Orchestration**      | LangGraph                                                              | State machine routing across the 4 modes                              |
+| **API layer**          | FastAPI + Uvicorn                                                      | 6 REST endpoints, Pydantic models, Swagger UI at `/docs`              |
+| **Web UI**             | Streamlit + Plotly                                                     | Live deployment with interactive charts                               |
+| **PDF reports**        | ReportLab                                                              | Styled compliance reports for sharing with leadership                 |
 ---
 
 ## Setup
