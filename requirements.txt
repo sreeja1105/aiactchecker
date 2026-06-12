@@ -1,19 +1,26 @@
 # Core
 python-dotenv>=1.0.0
 pydantic>=2.0.0
+
 # Vector store
 chromadb>=0.5.0
-# LLM (for text generation - not embeddings)
+
+# LLM
 google-genai>=1.0.0
 langchain>=0.3.0
 langchain-google-genai>=2.0.0
 langgraph>=0.2.0
-# Local embeddings (no API limits, fast, free forever)
+
+# Local embeddings
 sentence-transformers>=3.0.0
+
 # Document processing
 pypdf>=4.0.0
 requests>=2.32.0
+reportlab>=4.0.0
+
 # API and UI
 fastapi>=0.115.0
 uvicorn[standard]>=0.30.0
 streamlit>=1.40.0
+plotly>=5.20.0
