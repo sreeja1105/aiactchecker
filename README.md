@@ -3,7 +3,7 @@
 **Try it now** — no setup needed. Click any tab, try an example, see the output.
 **Multi mode EU AI Act compliance analysis system.** Classify any AI system into EU risk tiers, generate the obligations checklist, audit current compliance state with prioritized gaps, and map requirements across the EU AI Act, GDPR, and NIST AI RMF — all with article level citations.
 
-> **Status:** Active development. Core compliance logic (4 modes) shipped and validated. Integration layer (LangGraph orchestration, FastAPI, Streamlit UI) in progress.
+> **Status:** Live at https://aiactchecker.streamlit.app. All four analysis modes shipped, LangGraph orchestration wired, FastAPI backend exposed, Streamlit UI deployed to Streamlit Community Cloud.
 
 ---
 
