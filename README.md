@@ -171,18 +171,19 @@ python scripts/test_cross_map.py       # Mode 4
 
 ---
 
-## Roadmap
+## Features
 
-- [x] RAG foundation: corpus ingestion, retrieval, embedding pipeline
-- [x] Mode 1: Risk Classification
-- [x] Mode 2: Obligations Checklist
-- [x] Mode 3: Gap Analysis (single LLM call refactor)
-- [x] Mode 4: Cross Standard Map
-- [ ] LangGraph orchestration (route queries to the right mode automatically)
-- [ ] FastAPI endpoints
-- [ ] Streamlit UI
-- [ ] Live deployment
-- [ ] Demo video and screenshots
+- **Risk Classification** — Categorize any AI system into Prohibited, High, 
+  Limited, or Minimal risk with cited reasoning
+- **Obligations Checklist** — Generate the full set of EU AI Act obligations 
+  for the system's risk tier, with article references
+- **Gap Analysis** — Audit current implementation against obligations, get a 
+  compliance score, and receive a prioritized action plan
+- **Cross-Standard Map** — Compare requirements across the EU AI Act, GDPR, 
+  and NIST AI RMF for any governance topic
+- **PDF and Markdown Reports** — Export findings for sharing with leadership 
+  or auditors
+- **Live Web Interface** — Try it at https://aiactchecker.streamlit.app
 
 ---
 
